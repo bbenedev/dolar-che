@@ -2,23 +2,24 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
-  <img src="assets/logo-light.svg" width="96" height="96" alt="dolar-bot logo">
+  <img src="assets/logo-light.svg" width="104" height="104" alt="DOLAR CHE logo">
 </picture>
 
-# dolar-bot
+# DOLAR CHE
 
-**The Argentine dollar, one slash command away, in your Discord server.**
+**The Argentine dollar, the way Argentines ask about it, inside your Discord server.**
 
-Official, blue, MEP, CCL, crypto and card rates, a converter that uses the right side of the
-spread, and private alerts when a rate reaches your number.
+Blue, official, MEP, CCL, crypto and card rates, each with the exact time it was quoted.
+A converter, card purchases, other currencies, history charts, private alerts and a summary
+every afternoon. The bot speaks Argentine Spanish.
 
-[![ci](https://github.com/bbenedev/dolar-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/bbenedev/dolar-bot/actions/workflows/ci.yml)
+[![ci](https://github.com/bbenedev/dolar-che/actions/workflows/ci.yml/badge.svg)](https://github.com/bbenedev/dolar-che/actions/workflows/ci.yml)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![discord.py](https://img.shields.io/badge/discord.py-2.x-5865F2?logo=discord&logoColor=white)
 ![intents](https://img.shields.io/badge/privileged%20intents-none-brightgreen)
 
-[Commands](#commands) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Tests](#tests)
+[Commands](#commands) · [Try it without Discord](#try-it-without-discord) · [Add it to your server](#add-it-to-your-server) · [How it works](#how-it-works)
 
 **English** · [Español](README.es.md)
 
@@ -26,97 +27,115 @@ spread, and private alerts when a rate reaches your number.
 
 ---
 
-## Why
-
-In Argentina there is not one dollar but several, and people who earn, save or pay in
-dollars check them many times a day, and the "blue" rate is not in most bank apps. This bot
-brings the current numbers to the place where a community already talks, and warns each
-person privately when a rate reaches the value they care about.
-
 ## Commands
 
-| Command | What you get |
+| Command | What it does |
 |---|---|
-| `/dolar` | Buy and sell price of every rate, and the gap between blue and official |
-| `/convertir monto moneda tipo` | Dollars to pesos or pesos to dollars, at any rate |
-| `/alerta tipo cuando valor` | A private message when a rate goes up to, or down to, a price |
-| `/alertas` | Your active alerts, numbered |
-| `/borrar-alerta numero` | Delete one of them |
+| `/dolar` | Every rate, the blue/official gap, and **when each one was quoted** (Argentine time) |
+| `/convertir` | Dollars to pesos or pesos to dollars, at the rate you choose |
+| `/compra` | What a purchase in dollars costs in pesos with a card, taxes included |
+| `/monedas` | Euro, Brazilian real, Chilean and Uruguayan peso |
+| `/historial` | A chart of the last 7, 30, 90 or 365 days |
+| `/alerta` | A private message when a rate goes up or down to your number |
+| `/alertas`, `/borrar-alerta` | List and delete your alerts (up to 5) |
+| `/ayuda` | All of the above, briefly |
+| *Daily summary* | Every day at 18:00 in a channel you choose: how each rate closed and how much it moved |
 
-`/dolar` replies with a table like this one (real output, with the rates of 20/10/2026):
+## What it answers
 
-```text
-Tipo                            Compra         Venta
-Oficial                     $ 1.495,00    $ 1.545,00
-Blue                        $ 1.550,00    $ 1.570,00
-Bolsa                       $ 1.542,50    $ 1.548,80
-Contado con liquidación     $ 1.628,90    $ 1.630,90
-Mayorista                   $ 1.516,00    $ 1.525,00
-Cripto                      $ 1.624,27    $ 1.626,08
-Tarjeta                     $ 1.943,50    $ 2.008,50
-
-Brecha blue / oficial: 1.6%
-```
-
-And `/convertir monto:100 moneda:dólares tipo:blue`:
+Real output from the preview mode (rates of 20/10/2026):
 
 ```text
-USD 100.00 vendidos al Blue ($ 1.550,00) = $ 155.000,00
+💵 Así está el dólar, che:
+                Compra       Venta
+Oficial      $1.495,00   $1.545,00
+Blue         $1.550,00   $1.570,00
+MEP          $1.542,50   $1.548,80
+CCL          $1.628,90   $1.630,90
+Mayorista    $1.516,00   $1.525,00
+Cripto       $1.624,27   $1.626,08
+Tarjeta      $1.943,50   $2.008,50
+Brecha blue / oficial: 1,6 %
+🕒 Cotizado entre ayer a las 12:39 y ayer a las 17:56 (hora argentina)
 ```
 
-## Quick start
+```text
+🧉 Así cerró el dólar hoy, 21/10:
+▲ Blue: $1.570,00 (+$10,00, +0,6 % contra el 20/10)
+▲ Oficial: $1.545,00 (+$5,00, +0,3 % contra el 20/10)
+▲ MEP: $1.548,80 (+$4,70, +0,3 % contra el 20/10)
+▲ CCL: $1.630,90 (+$5,30, +0,3 % contra el 20/10)
+```
 
-1. Create an application and a bot at the
-   [Discord developer portal](https://discord.com/developers/applications) and invite it to
-   your server with the `applications.commands` scope.
-2. Run it:
+`/historial tipo:Blue dias:30`:
+
+<p align="center"><img src="assets/historial-ejemplo.png" width="720" alt="Chart of the blue dollar over the last 30 days"></p>
+
+## Try it without Discord
+
+The preview mode prints exactly what the bot would answer, with real data, and saves the
+chart as an image. No token and no server needed.
 
 ```bash
-git clone https://github.com/bbenedev/dolar-bot
-cd dolar-bot
+git clone https://github.com/bbenedev/dolar-che
+cd dolar-che
 pip install .
-export DISCORD_TOKEN="your token"      # PowerShell: $env:DISCORD_TOKEN="your token"
-python -m dolar_bot.bot
+dolar-che-preview            # every command
+dolar-che-preview historial  # just one: dolar, monedas, convertir, compra, historial, resumen
 ```
 
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `DISCORD_TOKEN` | yes | — | The bot token. Read only from the environment, never from a file in the repo |
-| `DOLAR_BOT_DATA` | no | `~/.dolar-bot/alerts.json` | Where alerts are stored |
+## Add it to your server
 
-The bot asks Discord for **no privileged intents**: it does not read messages or member lists.
+1. Create an application and a bot at the
+   [Discord developer portal](https://discord.com/developers/applications) and invite it with
+   the `applications.commands` scope and "Send Messages".
+2. Start it:
+
+```bash
+export DISCORD_TOKEN="your token"                     # PowerShell: $env:DISCORD_TOKEN="your token"
+export DOLAR_CHE_CANAL_RESUMEN="channel id"           # optional, for the daily summary
+dolar-che
+```
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DISCORD_TOKEN` | yes | The bot token. Read only from the environment, never from a file in the repo |
+| `DOLAR_CHE_CANAL_RESUMEN` | no | Channel for the 18:00 summary. Without it there is no summary |
+| `DOLAR_CHE_DATA` | no | Where alerts are stored (default `~/.dolar-che/alerts.json`) |
+
+The bot asks Discord for no privileged intents: it does not read messages or member lists.
 
 ## How it works
 
 ```mermaid
 flowchart LR
-  U[Discord user] -- slash command --> B[bot.py]
-  B -- one HTTPS request --> API[dolarapi.com]
-  B --> C[core.py<br/>pure functions]
-  B <--> S[storage.py<br/>alerts.json]
-  T[every 10 min] --> B
-  B -- private message --> U
+  U[Discord user] -- command --> B[bot.py]
+  B --> A[api.py<br/>1 minute cache]
+  A -- rates --> D[dolarapi.com]
+  A -- history --> H[argentinadatos.com]
+  B --> C[core.py<br/>rules and texts, no network]
+  B --> G[chart.py<br/>PNG chart]
+  B <--> S[storage.py<br/>alerts]
+  B -- 18:00 --> R[summary channel]
 ```
 
-| File | Responsibility |
-|---|---|
-| `core.py` | Read the API answer, Argentine number format, conversion, gap, alert rule. No network, no Discord |
-| `storage.py` | Alerts in a JSON file, written to a temporary file and renamed, so a crash cannot leave half a file |
-| `bot.py` | The thin layer that connects them to Discord and to the API |
+- **All the logic is pure** (`core.py`): Argentine number formats, conversion, quote time,
+  history, summary and alerts. It is tested without network or Discord.
+- **One request serves many people:** answers are cached for a minute, so twenty people asking
+  `/dolar` at once cost one request.
+- **Old data is never shown as new:** every rate says when it was quoted, and the daily summary
+  is skipped on weekends and whenever there is no close for the day yet.
+- **Alerts are not lost:** they are written to a temporary file and renamed, so a crash cannot
+  leave half a file; a failed private message is retried.
 
 <details>
 <summary><b>Details that are easy to get wrong, and are tested</b></summary>
 
-- **Selling dollars uses the *buy* price; buying uses the *sell* price.** That is what a
-  person actually gets or pays.
-- An alert at **exactly** the target fires.
-- A rate missing from the API **never** fires an alert.
-- One broken entry in the API answer does not discard the good ones.
-- A corrupt alerts file means "no alerts", never a crash.
-- Each person can have up to 5 alerts; the same alert twice is stored once.
-- An alert is kept if the private message fails (closed DMs), and tried again next round.
-- The API refuses Python's default `User-Agent` (HTTP 403), so the bot identifies itself.
-- When the API is down the bot says so instead of showing old numbers.
+- Selling dollars uses the **buy** price; buying them uses the **sell** price.
+- Times are converted from UTC to Argentine time: 02:30 UTC on the 22nd is 23:30 on the 21st.
+- The source's card rate already includes taxes, so nothing is added by hand.
+- Small currencies, such as the Chilean peso, are shown with four decimals.
+- One broken entry in an answer does not discard the good ones.
 
 </details>
 
@@ -127,15 +146,16 @@ pip install -e ".[dev]"
 pytest
 ```
 
-22 tests cover the logic and the storage. CI runs them, the linter and the formatter check on
+44 tests cover the logic, the chart, the one-minute cache and alert storage. CI runs them on
 Python 3.10, 3.12 and 3.13. The Discord commands themselves are a thin layer and were not
 tested against a live server in this repository.
 
-## Data source
+## Data sources
 
-Rates come from the free public API at [dolarapi.com](https://dolarapi.com). The bot makes one
-request per command and one every 10 minutes for alerts. The numbers are for information and
-are not financial advice.
+Rates from [dolarapi.com](https://dolarapi.com) and history from
+[argentinadatos.com](https://argentinadatos.com), both free. The history sometimes repeats the
+latest value for the current day before the close, which is why the summary goes out at 18:00.
+The numbers are for information and are not financial advice.
 
 ## License
 
