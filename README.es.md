@@ -25,6 +25,8 @@ cada tarde.
 
 </div>
 
+<p align="center"><img src="assets/demo.gif" width="800" alt="DOLAR CHE en Discord: /dolar, el gráfico con botones y una alerta"></p>
+
 ---
 
 ## Comandos

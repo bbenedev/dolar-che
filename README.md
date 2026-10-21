@@ -25,6 +25,8 @@ every afternoon. The bot speaks Argentine Spanish.
 
 </div>
 
+<p align="center"><img src="assets/demo.gif" width="800" alt="DOLAR CHE in Discord: /dolar, the history chart with buttons and an alert"></p>
+
 ---
 
 ## Commands
