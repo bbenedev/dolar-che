@@ -1,0 +1,15 @@
+services:
+  dolar-che:
+    build: .
+    image: dolar-che:latest
+    container_name: dolar-che
+    restart: unless-stopped
+    environment:
+      - DOLAR_CHE_HOME=/data
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      # Put the bot token in ./data/token (one line). Alerts and settings are saved here too.
+      - ./data:/data
+    # Measured at about 60 MB; the limit only stops a runaway from hurting the server.
+    mem_limit: 256m
+    cpus: 0.5
