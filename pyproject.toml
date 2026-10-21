@@ -13,7 +13,7 @@ authors = [{ name = "bbenedev" }]
 dependencies = ["discord.py>=2.3"]
 
 [project.optional-dependencies]
-dev = ["pytest", "ruff"]
+dev = ["pytest", "ruff==0.16.0"]
 
 [project.scripts]
 dolar-bot = "dolar_bot.bot:main"
