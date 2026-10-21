@@ -39,6 +39,7 @@ cada tarde.
 | `/alerta` | Te aviso por privado cuando un dólar sube o baja al valor que digas |
 | `/alertas`, `/borrar-alerta` | Ver y borrar tus alertas (hasta 5) |
 | `/ayuda` | Todo lo anterior, en corto |
+| `/resumen-aca`, `/resumen-apagar` | Elegir el canal del resumen diario, o apagarlo (administradores) |
 | *Resumen diario* | Todos los días a las 18 h, en el canal que elijas: cómo cerró y cuánto se movió |
 
 ## Así responde
@@ -100,19 +101,21 @@ dolar-che-preview historial  # uno solo: dolar, monedas, convertir, compra, hist
 1. Creá una aplicación y un bot en el
    [portal de desarrolladores de Discord](https://discord.com/developers/applications) e
    invitalo a tu servidor con los permisos `applications.commands` y "Enviar mensajes".
-2. Arrancalo:
+2. Guardá el token del bot en `~/.dolar-che/token` (una línea, fuera del repositorio), o en la
+   variable `DISCORD_TOKEN`.
+3. Arrancalo con `dolar-che`.
+4. En el canal donde quieras el resumen de las 18 h, escribí `/resumen-aca` (solo
+   administradores). `/resumen-apagar` lo apaga.
 
-```bash
-export DISCORD_TOKEN="tu token"                 # PowerShell: $env:DISCORD_TOKEN="tu token"
-export DOLAR_CHE_CANAL_RESUMEN="id del canal"   # opcional, para el resumen diario
-dolar-che
-```
+| Configuración | Para qué |
+|---|---|
+| `~/.dolar-che/token` o `DISCORD_TOKEN` | El token del bot. Nunca se guarda en el repositorio |
+| `/resumen-aca` o `DOLAR_CHE_CANAL_RESUMEN` | El canal del resumen diario. Sin esto, no hay resumen |
+| `DOLAR_CHE_HOME` | Otra carpeta en vez de `~/.dolar-che` (token, alertas y configuración) |
+| `DOLAR_CHE_DATA` | Otro archivo para las alertas |
 
-| Variable | Obligatoria | Para qué |
-|---|---|---|
-| `DISCORD_TOKEN` | sí | El token del bot. Solo se lee del entorno, nunca de un archivo del repo |
-| `DOLAR_CHE_CANAL_RESUMEN` | no | El canal donde sale el resumen de las 18 h. Sin esto, no hay resumen |
-| `DOLAR_CHE_DATA` | no | Dónde se guardan las alertas (por defecto `~/.dolar-che/alerts.json`) |
+La foto del bot está en [`assets/avatar.png`](assets/avatar.png), lista para subir en el
+portal de desarrolladores.
 
 El bot no le pide a Discord permisos especiales: no lee mensajes ni la lista de miembros.
 
@@ -157,7 +160,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-44 pruebas sobre la lógica, el gráfico, la memoria de un minuto y el guardado de alertas. La CI
+50 pruebas sobre la lógica, el gráfico, la memoria de un minuto y el guardado de alertas. La CI
 las corre en Python 3.10, 3.12 y 3.13. Los comandos de Discord son una capa fina y no se
 probaron contra un servidor real en este repositorio.
 

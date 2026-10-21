@@ -39,6 +39,7 @@ every afternoon. The bot speaks Argentine Spanish.
 | `/alerta` | A private message when a rate goes up or down to your number |
 | `/alertas`, `/borrar-alerta` | List and delete your alerts (up to 5) |
 | `/ayuda` | All of the above, briefly |
+| `/resumen-aca`, `/resumen-apagar` | Choose the channel for the daily summary, or turn it off (admins) |
 | *Daily summary* | Every day at 18:00 in a channel you choose: how each rate closed and how much it moved |
 
 ## What it answers
@@ -89,19 +90,21 @@ dolar-che-preview historial  # just one: dolar, monedas, convertir, compra, hist
 1. Create an application and a bot at the
    [Discord developer portal](https://discord.com/developers/applications) and invite it with
    the `applications.commands` scope and "Send Messages".
-2. Start it:
+2. Save the bot token in `~/.dolar-che/token` (one line, outside the repository), or set
+   `DISCORD_TOKEN`.
+3. Start it with `dolar-che`.
+4. In the channel where you want the 18:00 summary, run `/resumen-aca` (server admins only).
+   `/resumen-apagar` turns it off.
 
-```bash
-export DISCORD_TOKEN="your token"                     # PowerShell: $env:DISCORD_TOKEN="your token"
-export DOLAR_CHE_CANAL_RESUMEN="channel id"           # optional, for the daily summary
-dolar-che
-```
+| Setting | Purpose |
+|---|---|
+| `~/.dolar-che/token` or `DISCORD_TOKEN` | The bot token. Never stored in the repository |
+| `/resumen-aca` or `DOLAR_CHE_CANAL_RESUMEN` | The channel for the daily summary. Without it there is no summary |
+| `DOLAR_CHE_HOME` | Another folder instead of `~/.dolar-che` (token, alerts, settings) |
+| `DOLAR_CHE_DATA` | Another file for the alerts |
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `DISCORD_TOKEN` | yes | The bot token. Read only from the environment, never from a file in the repo |
-| `DOLAR_CHE_CANAL_RESUMEN` | no | Channel for the 18:00 summary. Without it there is no summary |
-| `DOLAR_CHE_DATA` | no | Where alerts are stored (default `~/.dolar-che/alerts.json`) |
+The bot's profile picture is in [`assets/avatar.png`](assets/avatar.png), ready to upload in
+the developer portal.
 
 The bot asks Discord for no privileged intents: it does not read messages or member lists.
 
@@ -146,7 +149,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-44 tests cover the logic, the chart, the one-minute cache and alert storage. CI runs them on
+50 tests cover the logic, the chart, the one-minute cache and alert storage. CI runs them on
 Python 3.10, 3.12 and 3.13. The Discord commands themselves are a thin layer and were not
 tested against a live server in this repository.
 
