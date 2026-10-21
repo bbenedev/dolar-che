@@ -105,7 +105,8 @@ def test_dolar_card_has_one_field_per_rate_padded_to_rows_of_three():
     e = cards.dolar(rows, 1.6, stamps_text(QUOTES, NOW), NOW)
     assert len(e.fields) % 3 == 0
     blue = next(f for f in e.fields if f.name == "Blue")
-    assert "Venta **$1.570,00**" in blue.value and "vs 20/10" in blue.value
+    assert "Venta **$1.570,00**" in blue.value and "▲ +$10,00 (+0,6 %)" in blue.value
+    assert "cierre del 20/10" in e.description
     assert "💡" in e.footer.text and "dolarapi.com" in e.footer.text
     assert e.color.value == cards.UP
 
@@ -115,7 +116,7 @@ def test_history_card_has_the_key_numbers_and_points_to_the_chart():
     e = cards.history("blue", 7, window)
     names = [f.name for f in e.fields]
     assert names == ["Al inicio", "Hoy", "Promedio", "Mínimo", "Máximo", "Compra hoy"]
-    assert e.image.url == "attachment://historial.png"
+    assert e.image.url is None, "the chart goes as an upload under the card, which every client shows"
     assert "dias:365" in e.footer.text
 
 
@@ -125,3 +126,16 @@ def test_summary_card_lists_each_rate():
     )
     e = cards.summary(1, moves)
     assert [f.name for f in e.fields][:2] == ["▼ Oficial", "▲ Blue"]
+
+
+def test_dolar_card_names_the_compared_close_once_when_all_rates_share_it():
+    rows = dollar_rows(QUOTES, {"blue": closes((20, 1560)), "oficial": closes((20, 1540))}, TODAY)
+    e = cards.dolar(rows, 1.6, stamps_text(QUOTES, NOW), NOW)
+    assert "Variación contra el cierre del 20/10" in e.description
+    assert all("vs 20/10" not in f.value for f in e.fields)
+
+
+def test_history_card_adds_the_year_over_long_ranges():
+    window = [DayClose(date(2025, 10, 22), 1, 1500), DayClose(date(2026, 10, 21), 1, 1570)]
+    e = cards.history("blue", 365, window)
+    assert "22/10/25" in e.fields[0].value

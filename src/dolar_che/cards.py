@@ -48,9 +48,13 @@ def dolar(rows: list[Row], gap: float | None, stamps: str, now: datetime) -> dis
     if gap is not None:
         lines.append(f"Brecha blue / oficial: **{percent(gap)}**")
     lines.append(f"🕒 {stamps}")
+    # Say once which close the changes compare against, so each rate fits in three short lines.
+    prev_days = {r.prev.day for r in rows if r.prev is not None}
+    if len(prev_days) == 1:
+        lines.append(f"Variación contra el cierre del {next(iter(prev_days)):%d/%m}")
     e.description = "\n".join(lines)
     for r in rows:
-        change = r.change_text() or "sin dato del día anterior"
+        change = r.change_text(with_date=len(prev_days) > 1) or "sin dato del día anterior"
         e.add_field(
             name=SHORT_NAMES.get(r.key, r.name),
             value=f"Compra {money(r.buy)}\nVenta **{money(r.sell)}**\n{change}",
@@ -78,13 +82,16 @@ def history(rate: str, days: int, window: list[DayClose]) -> discord.Embed:
         description=f"**{money(last.sell)}** {arrow(change)} {signed_money(change)} ({signed_percent(pct)}) desde el {first.day:%d/%m/%Y}",
         color=_color(change),
     )
-    e.add_field(name="Al inicio", value=f"{money(first.sell)}\n{first.day:%d/%m}", inline=True)
-    e.add_field(name="Hoy", value=f"{money(last.sell)}\n{last.day:%d/%m}", inline=True)
+    # Over a long range "22/10" is ambiguous: add the year.
+    fmt = "%d/%m/%y" if (last.day - first.day).days > 120 else "%d/%m"
+    e.add_field(name="Al inicio", value=f"{money(first.sell)}\n{first.day:{fmt}}", inline=True)
+    e.add_field(name="Hoy", value=f"{money(last.sell)}\n{last.day:{fmt}}", inline=True)
     e.add_field(name="Promedio", value=money(average(window)), inline=True)
-    e.add_field(name="Mínimo", value=f"{money(low.sell)}\n{low.day:%d/%m}", inline=True)
-    e.add_field(name="Máximo", value=f"{money(high.sell)}\n{high.day:%d/%m}", inline=True)
+    e.add_field(name="Mínimo", value=f"{money(low.sell)}\n{low.day:{fmt}}", inline=True)
+    e.add_field(name="Máximo", value=f"{money(high.sell)}\n{high.day:{fmt}}", inline=True)
     e.add_field(name="Compra hoy", value=money(last.buy), inline=True)
-    e.set_image(url="attachment://historial.png")
+    # The chart goes as a normal upload under the card, not inside it: Discord hides images
+    # inside cards for people who turned off link previews, and uploads are always shown.
     other = 365 if days < 365 else 30
     e.set_footer(
         text=_footer(
