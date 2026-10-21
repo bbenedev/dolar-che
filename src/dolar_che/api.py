@@ -17,6 +17,7 @@ HISTORY_URL = "https://api.argentinadatos.com/v1/cotizaciones/dolares/{rate}"
 # Both services refuse Python's default User-Agent, so the bot says who it is.
 HEADERS = {"User-Agent": "DOLAR-CHE/1.0 (Discord bot; +https://github.com/bbenedev/dolar-che)"}
 CACHE_SECONDS = 60
+HISTORY_CACHE_SECONDS = 600
 
 Fetch = Callable[[str], object]
 
@@ -38,9 +39,9 @@ class Rates:
         self._clock = clock
         self._cache: dict[str, tuple[float, object]] = {}
 
-    def _get(self, url: str) -> object:
+    def _get(self, url: str, ttl: float = CACHE_SECONDS) -> object:
         hit = self._cache.get(url)
-        if hit and self._clock() - hit[0] < CACHE_SECONDS:
+        if hit and self._clock() - hit[0] < ttl:
             return hit[1]
         data = self._fetch(url)
         self._cache[url] = (self._clock(), data)
@@ -56,4 +57,15 @@ class Rates:
         return quotes
 
     def history(self, rate: str) -> list[DayClose]:
-        return parse_history(self._get(HISTORY_URL.format(rate=rate)))
+        # Daily data that is large and changes once a day: keep it for ten minutes.
+        return parse_history(self._get(HISTORY_URL.format(rate=rate), HISTORY_CACHE_SECONDS))
+
+    def histories(self, rates: tuple[str, ...]) -> dict[str, list[DayClose]]:
+        """History of several rates; one that fails is left out instead of failing them all."""
+        out = {}
+        for rate in rates:
+            try:
+                out[rate] = self.history(rate)
+            except DolarError:
+                continue
+        return out
