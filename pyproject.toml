@@ -3,20 +3,21 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dolar-bot"
-version = "0.1.0"
-description = "Discord bot with the Argentine dollar rates, a converter and price alerts"
+name = "dolar-che"
+version = "1.0.0"
+description = "DOLAR CHE: Discord bot with the Argentine dollar, other currencies, history charts, alerts and a daily summary"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "bbenedev" }]
-dependencies = ["discord.py>=2.3"]
+dependencies = ["discord.py>=2.3", "pillow>=10.1"]
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff==0.16.0"]
 
 [project.scripts]
-dolar-bot = "dolar_bot.bot:main"
+dolar-che = "dolar_che.bot:main"
+dolar-che-preview = "dolar_che.preview:main_cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
