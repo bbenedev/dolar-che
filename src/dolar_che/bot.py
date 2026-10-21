@@ -1,4 +1,4 @@
-"""Discord wiring. Run: python -m dolar_che.bot (needs DISCORD_TOKEN in the environment)."""
+"""Discord wiring. Run: dolar-che (token in DISCORD_TOKEN or in ~/.dolar-che/token)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import discord
 from discord import app_commands
 from discord.ext import tasks
 
-from . import storage
+from . import settings, storage
 from .api import Rates
 from .chart import render
 from .core import (
@@ -34,8 +34,8 @@ from .core import (
     money,
 )
 
-ALERTS_FILE = Path(os.environ.get("DOLAR_CHE_DATA", Path.home() / ".dolar-che" / "alerts.json"))
-SUMMARY_CHANNEL = os.environ.get("DOLAR_CHE_CANAL_RESUMEN")  # channel id for the daily summary
+HOME = settings.home()
+ALERTS_FILE = Path(os.environ.get("DOLAR_CHE_DATA") or HOME / "alerts.json")
 SUMMARY_TIME = time(18, 0, tzinfo=ART)
 
 client = discord.Client(intents=discord.Intents.none())
@@ -180,9 +180,28 @@ async def ayuda(interaction: discord.Interaction):
         "`/monedas` euro, real y pesos chileno y uruguayo\n"
         "`/historial` gráfico de los últimos días\n"
         "`/alerta` te aviso cuando llegue a tu número\n"
+        "`/resumen-aca` el resumen de las 18 h sale en este canal (solo admins)\n"
         "Los datos son de referencia, no son un consejo financiero.",
         ephemeral=True,
     )
+
+
+@tree.command(name="resumen-aca", description="El resumen diario de las 18 h sale en este canal")
+@app_commands.default_permissions(manage_guild=True)
+@app_commands.guild_only()
+async def resumen_aca(interaction: discord.Interaction):
+    settings.set_summary_channel(HOME, interaction.channel_id)
+    await interaction.response.send_message(
+        "¡Listo! Los días hábiles a las 18 h te dejo acá cómo cerró el dólar. 🧉", ephemeral=True
+    )
+
+
+@tree.command(name="resumen-apagar", description="Deja de publicar el resumen diario")
+@app_commands.default_permissions(manage_guild=True)
+@app_commands.guild_only()
+async def resumen_apagar(interaction: discord.Interaction):
+    settings.set_summary_channel(HOME, None)
+    await interaction.response.send_message("Listo, no publico más el resumen diario.", ephemeral=True)
 
 
 @tasks.loop(minutes=10)
@@ -212,14 +231,12 @@ async def check_alerts():
 
 @tasks.loop(time=SUMMARY_TIME)
 async def daily_summary():
-    if not SUMMARY_CHANNEL:
+    channel_id = settings.summary_channel(os.environ, HOME)
+    if channel_id is None:
         return
-    channel = client.get_channel(int(SUMMARY_CHANNEL))
+    channel = client.get_channel(channel_id)
     if not isinstance(channel, discord.abc.Messageable):
-        print(
-            f"DOLAR_CHE_CANAL_RESUMEN={SUMMARY_CHANNEL} is not a channel the bot can write to.",
-            file=sys.stderr,
-        )
+        print(f"Summary channel {channel_id} is not a channel the bot can write to.", file=sys.stderr)
         return
     try:
         histories = {
@@ -241,9 +258,11 @@ async def on_ready():
 
 
 def main() -> int:
-    token = os.environ.get("DISCORD_TOKEN")
+    token = settings.load_token(os.environ, HOME)
     if not token:
-        print("Set the DISCORD_TOKEN environment variable first (see README).", file=sys.stderr)
+        print(
+            f"No token found. Put it in {HOME / 'token'} or in DISCORD_TOKEN (see README).", file=sys.stderr
+        )
         return 2
     client.run(token)
     return 0
