@@ -20,8 +20,7 @@ spread, and private alerts when a rate reaches your number.
 
 [Commands](#commands) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Tests](#tests)
 
-*En castellano: un bot de Discord con las cotizaciones del dólar en Argentina, un conversor y
-alertas por mensaje privado.*
+**English** · [Español](README.es.md)
 
 </div>
 
