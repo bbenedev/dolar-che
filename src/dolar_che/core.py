@@ -320,6 +320,90 @@ def format_daily_summary(histories: dict[str, list[DayClose]], today: date) -> s
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------- data for the cards
+
+
+def stamps_text(quotes: dict[str, Quote], now: datetime) -> str:
+    """'Cotizado hoy a las 13:58 (hora argentina)' or 'Cotizado entre ... y ...'."""
+    stamps = sorted({q.updated for q in quotes.values() if q.updated})
+    if not stamps:
+        return "Hora de cotización desconocida"
+    if len(stamps) == 1 or when(stamps[0], now) == when(stamps[-1], now):
+        return f"Cotizado {when(stamps[-1], now)} (hora argentina)"
+    return f"Cotizado entre {when(stamps[0], now)} y {when(stamps[-1], now)} (hora argentina)"
+
+
+def previous_close(history: list[DayClose], today: date) -> DayClose | None:
+    """The last close before today: what "vs ayer" compares against (Friday on a Monday)."""
+    before = [h for h in history if h.day < today]
+    return before[-1] if before else None
+
+
+@dataclass(frozen=True)
+class Row:
+    """One rate in /dolar: today's prices and the change against the previous close."""
+
+    key: str
+    name: str
+    buy: float
+    sell: float
+    prev: DayClose | None
+
+    @property
+    def change(self) -> float | None:
+        return None if self.prev is None else self.sell - self.prev.sell
+
+    @property
+    def change_pct(self) -> float | None:
+        if self.prev is None or not self.prev.sell:
+            return None
+        return (self.sell / self.prev.sell - 1) * 100
+
+    def change_text(self) -> str:
+        """'▲ +$10,00 (+0,6 %) vs 20/10', or '' when there is nothing to compare against."""
+        if self.change is None or self.change_pct is None or self.prev is None:
+            return ""
+        return (
+            f"{arrow(self.change)} {signed_money(self.change)} ({signed_percent(self.change_pct)}) "
+            f"vs {self.prev.day:%d/%m}"
+        )
+
+
+def dollar_rows(quotes: dict[str, Quote], histories: dict[str, list[DayClose]], today: date) -> list[Row]:
+    rows = []
+    for key in RATE_ORDER:
+        q = quotes.get(key)
+        if q is None:
+            continue
+        prev = previous_close(histories.get(key, []), today)
+        rows.append(Row(key, SHORT_NAMES[key], q.buy, q.sell, prev))
+    if not rows:
+        raise DolarError("No llegó ninguna cotización que sirva. Probá en un ratito.")
+    return rows
+
+
+PERIODS = {1: "hoy contra el día anterior", 7: "últimos 7 días", 30: "últimos 30 días"}
+
+
+def period_moves(histories: dict[str, list[DayClose]], days: int, today: date) -> list[tuple[str, Move]]:
+    """How each rate moved in a period. days=1 compares the last close with the one before."""
+    out = []
+    for key in RATE_ORDER:
+        hist = [h for h in histories.get(key, []) if h.day <= today]
+        if len(hist) < 2:
+            continue
+        window = hist[-2:] if days == 1 else last_days(hist, days, today)
+        if len(window) >= 2:
+            out.append((key, move_of(window)))
+    if not out:
+        raise DolarError("No hay suficiente historial para ese período.")
+    return out
+
+
+def average(window: list[DayClose]) -> float:
+    return sum(h.sell for h in window) / len(window)
+
+
 # ---------------------------------------------------------------- alerts
 
 
