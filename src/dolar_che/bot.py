@@ -61,7 +61,7 @@ CURRENCY_CHOICES = [
     app_commands.Choice(name="Tengo dólares → quiero pesos", value="usd"),
     app_commands.Choice(name="Tengo pesos → quiero dólares", value="ars"),
 ]
-SUMMARY_RATES = ("blue", "oficial", "bolsa", "contadoconliqui", "cripto", "tarjeta")
+SUMMARY_RATES = ("oficial", "blue", "bolsa", "contadoconliqui", "mayorista", "cripto", "tarjeta")
 
 
 def now() -> datetime:
@@ -475,7 +475,8 @@ async def every_ten_minutes():
             await user.send(
                 embed=cards.simple(
                     "🔔 ¡Che, llegó!",
-                    f"{describe_alert(a).capitalize()}: ahora está en **{money(quotes[a.rate].sell)}**.",
+                    f"Me pediste que te avise cuando {describe_alert(a)}. "
+                    f"Ahora está en **{money(quotes[a.rate].sell)}**.",
                     "/alerta para crear otra",
                 )
             )

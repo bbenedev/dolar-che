@@ -359,14 +359,12 @@ class Row:
             return None
         return (self.sell / self.prev.sell - 1) * 100
 
-    def change_text(self) -> str:
+    def change_text(self, with_date: bool = True) -> str:
         """'▲ +$10,00 (+0,6 %) vs 20/10', or '' when there is nothing to compare against."""
         if self.change is None or self.change_pct is None or self.prev is None:
             return ""
-        return (
-            f"{arrow(self.change)} {signed_money(self.change)} ({signed_percent(self.change_pct)}) "
-            f"vs {self.prev.day:%d/%m}"
-        )
+        text = f"{arrow(self.change)} {signed_money(self.change)} ({signed_percent(self.change_pct)})"
+        return f"{text} vs {self.prev.day:%d/%m}" if with_date else text
 
 
 def dollar_rows(quotes: dict[str, Quote], histories: dict[str, list[DayClose]], today: date) -> list[Row]:
@@ -425,5 +423,5 @@ def alert_fires(alert: Alert, quotes: dict[str, Quote]) -> bool:
 
 
 def describe_alert(alert: Alert) -> str:
-    word = "sube a" if alert.above else "baja a"
+    word = "suba a" if alert.above else "baje a"
     return f"el {SHORT_NAMES.get(alert.rate, alert.rate)} {word} {money(alert.target)}"
