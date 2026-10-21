@@ -35,12 +35,18 @@ cada tarde.
 | `/convertir` | Dólares a pesos o pesos a dólares, con el dólar que elijas |
 | `/compra` | Cuánto te sale en pesos algo en dólares con tarjeta, impuestos incluidos |
 | `/monedas` | Euro, real, peso chileno y peso uruguayo |
-| `/historial` | Gráfico de los últimos 7, 30, 90 o 365 días |
+| `/historial` | Gráfico de 7 días a un año, con botones para cambiar el período y el dólar |
+| `/resumen` | Cómo se movió cada dólar hoy, en la semana o en el mes |
 | `/alerta` | Te aviso por privado cuando un dólar sube o baja al valor que digas |
 | `/alertas`, `/borrar-alerta` | Ver y borrar tus alertas (hasta 5) |
 | `/ayuda` | Todo lo anterior, en corto |
 | `/resumen-aca`, `/resumen-apagar` | Elegir el canal del resumen diario, o apagarlo (administradores) |
 | *Resumen diario* | Todos los días a las 18 h, en el canal que elijas: cómo cerró y cuánto se movió |
+
+Las respuestas son tarjetas de Discord con botones: actualizar, abrir el gráfico, crear una
+alerta con un formulario corto o cambiar el período del gráfico sin volver a escribir. Cada
+opción de cada comando tiene su explicación y una lista para elegir, y cada respuesta sugiere
+qué probar después.
 
 ## Así responde
 
@@ -119,6 +125,23 @@ portal de desarrolladores.
 
 El bot no le pide a Discord permisos especiales: no lee mensajes ni la lista de miembros.
 
+## Alojarlo en un servidor de casa (Docker, CasaOS)
+
+Usa unos 60 MB de memoria y casi nada de procesador, así que alcanza cualquier máquina que
+quede prendida.
+
+```bash
+git clone https://github.com/bbenedev/dolar-che && cd dolar-che
+mkdir data && nano data/token      # pegá el token del bot, una línea, y guardá
+sudo chown 1000 data               # el contenedor corre con un usuario sin privilegios
+docker compose up -d --build
+docker logs -f dolar-che           # tiene que decir "DOLAR CHE ready as ..."
+```
+
+Se vuelve a prender solo después de un reinicio (`restart: unless-stopped`), guarda alertas y
+configuración en `./data` y tiene un tope de 256 MB y medio procesador. En CasaOS el
+contenedor aparece en el panel como cualquier otra app.
+
 ## Cómo funciona
 
 ```mermaid
@@ -160,7 +183,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-50 pruebas sobre la lógica, el gráfico, la memoria de un minuto y el guardado de alertas. La CI
+60 pruebas sobre la lógica, el gráfico, la memoria de un minuto y el guardado de alertas. La CI
 las corre en Python 3.10, 3.12 y 3.13. Los comandos de Discord son una capa fina y no se
 probaron contra un servidor real en este repositorio.
 

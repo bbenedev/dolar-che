@@ -35,12 +35,17 @@ every afternoon. The bot speaks Argentine Spanish.
 | `/convertir` | Dollars to pesos or pesos to dollars, at the rate you choose |
 | `/compra` | What a purchase in dollars costs in pesos with a card, taxes included |
 | `/monedas` | Euro, Brazilian real, Chilean and Uruguayan peso |
-| `/historial` | A chart of the last 7, 30, 90 or 365 days |
+| `/historial` | A chart of the last 7, 30, 90 or 365 days, with buttons to switch period and rate |
+| `/resumen` | How each dollar moved today, this week or this month |
 | `/alerta` | A private message when a rate goes up or down to your number |
 | `/alertas`, `/borrar-alerta` | List and delete your alerts (up to 5) |
 | `/ayuda` | All of the above, briefly |
 | `/resumen-aca`, `/resumen-apagar` | Choose the channel for the daily summary, or turn it off (admins) |
 | *Daily summary* | Every day at 18:00 in a channel you choose: how each rate closed and how much it moved |
+
+Replies are Discord cards with buttons: refresh, open the chart, create an alert with a
+short form, or switch the chart's period without typing again. Every option of every
+command has a description and a list to pick from, and every reply suggests what to try next.
 
 ## What it answers
 
@@ -108,6 +113,22 @@ the developer portal.
 
 The bot asks Discord for no privileged intents: it does not read messages or member lists.
 
+## Run it on a home server (Docker, CasaOS)
+
+It uses about 60 MB of memory and almost no CPU, so any always-on machine will do.
+
+```bash
+git clone https://github.com/bbenedev/dolar-che && cd dolar-che
+mkdir data && nano data/token      # paste the bot token, one line, save
+sudo chown 1000 data               # the container runs as an unprivileged user
+docker compose up -d --build
+docker logs -f dolar-che           # should say "DOLAR CHE ready as ..."
+```
+
+It restarts on its own after a reboot (`restart: unless-stopped`), keeps alerts and settings
+in `./data`, and is capped at 256 MB and half a CPU. In CasaOS the container shows up in the
+dashboard like any other app.
+
 ## How it works
 
 ```mermaid
@@ -149,7 +170,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-50 tests cover the logic, the chart, the one-minute cache and alert storage. CI runs them on
+60 tests cover the logic, the chart, the one-minute cache and alert storage. CI runs them on
 Python 3.10, 3.12 and 3.13. The Discord commands themselves are a thin layer and were not
 tested against a live server in this repository.
 
